@@ -1,0 +1,151 @@
+fun rotate_image(index) {
+    index = Math.Int(index);
+
+    if (! RotatedImageCache[index]) {
+        RotatedImageCache[index] = spinner.image.Rotate((Math.Pi * 2 * index) / spinner.imagecount);
+    }
+
+    return RotatedImageCache[index];
+}
+
+fun init() {
+    // Background
+    Window.SetBackgroundTopColor(0.0, 0.0, 0.0);
+    Window.SetBackgroundBottomColor(0.0, 0.0, 0.0);
+
+    // Spinner
+    spinner.image = ImageNew("spinner.png");
+    spinner.sprite = SpriteNew();
+    spinner.sprite.SetImage(rotate_image(0));
+    spinner.sprite.SetX((Window.GetX() + Window.GetWidth() - spinner.image.GetWidth()) / 2);
+    spinner.sprite.SetY(Window.GetY() + Window.GetHeight() * 0.7);
+    spinner.angle = 0;
+    spinner.index = 0;
+    spinner.imagecount = 64;
+
+    // Logo
+    logo.image = Image("logo.png");
+    logo.sprite = Sprite(logo.image);
+    logo.sprite.SetX(Window.GetWidth() / 2 - logo.image.GetWidth() / 2);
+    logo.sprite.SetY(Window.GetHeight() / 2 - logo.image.GetHeight() / 2);
+    logo.sprite.SetOpacity(1);
+    logo.sprite.SetZ(10000);
+
+    // Message
+    message = SpriteNew();
+
+    // Dialog
+    box.image = ImageNew("box.png");
+    lock.image = ImageNew("lock.png");
+    entry.image = ImageNew("entry.png");
+
+    box.sprite = SpriteNew();
+    box.sprite.SetImage(box.image);
+    box.x = Window.GetX() + Window.GetWidth() / 2 - box.image.GetWidth() / 2;
+    box.y = Window.GetY() + Window.GetHeight() * 0.7;
+    box.z = 10000;
+    box.sprite.SetPosition(box.x, box.y, box.z);
+
+    lock.sprite = SpriteNew();
+    lock.sprite.SetImage(lock.image);
+    lock.x = box.x + box.image.GetWidth() / 2 - (lock.image.GetWidth() + entry.image.GetWidth()) / 2 - 7;
+    lock.y = box.y + box.image.GetHeight() / 2 - lock.image.GetHeight() / 2;
+    lock.z = box.z + 1;
+    lock.sprite.SetPosition(lock.x, lock.y, lock.z);
+
+    entry.sprite = SpriteNew();
+    entry.sprite.SetImage(entry.image);
+    entry.x = lock.x + lock.image.GetWidth() + 7;
+    entry.y = box.y + box.image.GetHeight() / 2 - entry.image.GetHeight() / 2;
+    entry.z = box.z + 1;
+    entry.sprite.SetPosition(entry.x, entry.y, entry.z);
+
+    msg = SpriteNew();
+    msg.SetPosition(box.x + 10, box.y - 20, box.z);
+
+    dialog.box = box;
+    dialog.lock = lock;
+    dialog.entry = entry;
+    dialog.bullet_image = ImageNew("bullet.png");
+    dialog.message = msg;
+    dialog.visible = 0;
+
+    show_dialog(0);
+}
+
+fun show_dialog(visibility) {
+    dialog.visible = visibility;
+
+    dialog.box.sprite.SetOpacity(visibility);
+    dialog.lock.sprite.SetOpacity(visibility);
+    dialog.entry.sprite.SetOpacity(visibility);
+    dialog.message.SetOpacity(visibility);
+
+    for (index=0; dialog.bullet[index]; index++) {
+        dialog.bullet[index].sprite.SetOpacity(visibility);
+    }
+}
+
+fun refresh_callback() {
+    if (dialog.visible) {
+        spinner.sprite.SetOpacity(0);
+    } else {
+        spinner.index += 1;
+        spinner.index %= spinner.imagecount;
+        spinner.sprite.SetImage(rotate_image(spinner.index));
+    }
+}
+
+fun display_normal_callback() {
+    show_dialog(0);
+}
+
+fun display_password_callback(text, bullets) {
+    show_dialog(1);
+
+    spinner.sprite.SetOpacity(0);
+    dialog.message.SetImage(Image.Text(text, 1.0, 1.0, 1.0));
+
+    for (index=0; dialog.bullet[index] || index<bullets; index++) {
+        if (! dialog.bullet[index]) {
+            dialog.bullet[index].sprite = SpriteNew();
+            dialog.bullet[index].sprite.SetImage(dialog.bullet_image);
+            dialog.bullet[index].x = dialog.entry.x + index * dialog.bullet_image.GetWidth();
+            dialog.bullet[index].y = dialog.entry.y + dialog.entry.image.GetHeight() / 2 - dialog.bullet_image.GetHeight() / 2;
+            dialog.bullet[index].z = dialog.entry.z + 1;
+            dialog.bullet[index].sprite.SetPosition(dialog.bullet[index].x, dialog.bullet[index].y, dialog.bullet[index].z);
+        }
+
+        if (index < bullets) {
+            dialog.bullet[index].sprite.SetOpacity(1);
+        } else {
+            dialog.bullet[index].sprite.SetOpacity(0);
+        }
+    }
+}
+
+fun display_message_callback(text) {
+    text_img = Image.Text(text, 1.0, 1.0, 1.0);
+    message.SetImage(text_img);
+    message.SetPosition(Window.GetX() + (Window.GetWidth() - text_img.GetWidth()) / 2, Window.GetY() + Window.GetHeight() * 0.93, 2);
+}
+
+fun quit_callback() {
+    spinner.sprite.SetOpacity(0);
+}
+
+// Global variables
+spinner;
+logo;
+message;
+dialog;
+
+// Initiate all graphical elements
+init();
+
+// Set callback functions
+Plymouth.SetRefreshFunction(refresh_callback);
+Plymouth.SetDisplayNormalFunction(display_normal_callback);
+Plymouth.SetDisplayPasswordFunction(display_password_callback);
+Plymouth.SetMessageFunction(display_message_callback);
+Plymouth.SetQuitFunction(quit_callback);
