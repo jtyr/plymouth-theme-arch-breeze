@@ -73,6 +73,7 @@ fun refresh_callback() {
         spinner.index += 1;
         spinner.index %= spinner.imagecount;
         spinner.sprite.SetImage(rotate_image(spinner.index));
+        spinner.sprite.SetOpacity(1);
     }
 }
 
