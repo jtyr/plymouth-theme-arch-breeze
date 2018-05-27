@@ -95,7 +95,7 @@ fun display_password_callback(text, bullets) {
         if (! dialog.bullet[index]) {
             dialog.bullet[index].sprite = SpriteNew();
             dialog.bullet[index].sprite.SetImage(dialog.bullet_image);
-            dialog.bullet[index].x = dialog.entry.x + index * dialog.bullet_image.GetWidth();
+            dialog.bullet[index].x = dialog.entry.x + index * dialog.bullet_image.GetWidth() + dialog.entry.image.GetWidth() * 0.03;
             dialog.bullet[index].y = dialog.entry.y + dialog.entry.image.GetHeight() / 2 - dialog.bullet_image.GetHeight() / 2;
             dialog.bullet[index].z = dialog.entry.z + 1;
             dialog.bullet[index].sprite.SetPosition(dialog.bullet[index].x, dialog.bullet[index].y, dialog.bullet[index].z);
@@ -104,6 +104,10 @@ fun display_password_callback(text, bullets) {
         if (index < bullets) {
             dialog.bullet[index].sprite.SetOpacity(1);
         } else {
+            dialog.bullet[index].sprite.SetOpacity(0);
+        }
+        
+        if (dialog.bullet[index].x - dialog.entry.x >= dialog.entry.image.GetWidth() * 0.97) {
             dialog.bullet[index].sprite.SetOpacity(0);
         }
     }
