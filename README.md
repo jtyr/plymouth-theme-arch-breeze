@@ -14,7 +14,7 @@ Installation
 ------------
 
 ```
-$ yaourt -S plymouth-theme-arch-breeze
+$ yay -S plymouth-theme-arch-breeze-git
 ```
 
 Once installed you can set it as your theme:
